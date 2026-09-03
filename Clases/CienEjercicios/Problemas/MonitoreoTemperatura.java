@@ -34,9 +34,11 @@ import java.util.Scanner;
  */
 public class MonitoreoTemperatura {
     public static void main(String[] args) {
+        System.out.println("===== SISTEMA DE MONITOREO DE SERVIDOR =====");
         try(Scanner scanner = new Scanner(System.in)){
-            System.out.print("Ingrese la cantidad de lecturas: ");
-            int cantidadLecturas = verificarNumero(scanner);
+            System.out.print("Ingrese la cantidad total de lecturas a registrar: ");
+            int totalLecturas = verificarNumero(scanner);
+            procesarLecturas(totalLecturas, scanner);
         }catch (Exception e){
             System.out.println("Ocurrió un error inesperado en la entrada de datos");
         }
@@ -53,8 +55,72 @@ public class MonitoreoTemperatura {
                 }
             }else{
                 System.out.println("Error: Debe ingresar un numero válido");
+                scanner.next(); // Limpieza del Buffer
+            }
+        }
+    }
+
+    public static int solicitarTemperaturaValida(Scanner scanner, int lecturaActual, int totalLecturas){
+        while(true){
+            System.out.print("Ingrese la temperatura para la lectura #" + lecturaActual+"(-10 a 100°C):");
+            if(scanner.hasNextInt()){
+                int temperatura = scanner.nextInt();
+                if(temperatura >= -10 && temperatura <= 100){
+                    return temperatura;
+                }else{
+                    System.out.println("Error: la temperatura debe estar entre -10 y 100°C\n");
+                }
+            }else{
+                System.out.println("Error: Debe ingresar un número entero válido\n");
                 scanner.next();
             }
         }
+    }
+
+    public static void procesarLecturas(int totalLecturas, Scanner scanner){
+        int contadorConsecutivas = 0;
+        int contadorConExito = 0;
+        int temperaturaMaxima = Integer.MIN_VALUE;
+        double sumaTemperaturas = 0;
+        double mayor = Double.NEGATIVE_INFINITY;
+
+        System.out.println("--- Registro de Lecturas ---");
+        for (int i=1; i<=totalLecturas; i++){
+            
+            System.out.print("Ingrese Temperatura ("+i+"/"+totalLecturas+"): ");
+            int temperatura = solicitarTemperaturaValida(scanner, i, totalLecturas);
+
+            contadorConExito++;
+            sumaTemperaturas += temperatura;
+
+            if(temperatura> temperaturaMaxima){
+                temperaturaMaxima = temperatura;
+            }
+
+            if(temperatura > 45){
+                System.out.println("Alerta: Temperatura alta (" + temperatura + "°C)");
+                contadorConsecutivas++;
+
+                if( contadorConsecutivas == 3){
+                    System.out.println("APAGADO DE EMERGENCIA: 3 alertas de sobrecalentamiento consecutivas");
+                    break;
+                }
+            }else{
+                System.out.println(" Temperatura normal (" + temperatura + "°C)");
+                contadorConsecutivas = 0;
+            }
+        }
+        System.out.println();
+        System.out.println("===== RESUMEN DEL MONITOREO =====");
+        System.out.println("Total de lecturas procesadas con éxito:"+ contadorConExito);
+        if(contadorConExito == 0){
+            System.out.println("Temperatura más alta registrada: N/A");
+            System.out.println("Temperatura promedio general: 0.0°C (No se registraron datos)");
+        }else{
+            double promedio = sumaTemperaturas / contadorConExito;
+            System.out.println("Temperatura más alta registrada: " + temperaturaMaxima+"°C");
+            System.out.println("Temperatura promedio general:" + promedio+"°C");
+        }
+
     }
 }
