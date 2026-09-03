@@ -82,11 +82,9 @@ public class MonitoreoTemperatura {
         int contadorConExito = 0;
         int temperaturaMaxima = Integer.MIN_VALUE;
         double sumaTemperaturas = 0;
-        double mayor = Double.NEGATIVE_INFINITY;
 
         System.out.println("--- Registro de Lecturas ---");
         for (int i=1; i<=totalLecturas; i++){
-            
             System.out.print("Ingrese Temperatura ("+i+"/"+totalLecturas+"): ");
             int temperatura = solicitarTemperaturaValida(scanner, i, totalLecturas);
 
